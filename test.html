@@ -1,0 +1,40 @@
+<html>
+<head>
+    <link rel="stylesheet" href="jquery-jvectormap-2.0.5.css" type="text/css" media="screen"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="jquery-jvectormap-2.0.5.min.js"></script>
+    <script src="jquery-jvectormap-world-mill.js"></script>
+</head>
+<body>
+  <div id="world-map" style="width: 1200px; height: 900px"></div>
+  <script>
+
+    var banTooltips = {'RU': '- This does not apply to passengers who reside in Russian Fed.\n- This does not apply to airline crew.'};
+    var restrictionTooltips = {US:'restricted'};
+    var bannedCountries = ['RU'];
+    var restrictedCountries = ['US'];
+    $(function(){
+      $('#world-map').vectorMap({map: 'world_mill',
+    series:{
+      regions: [{values: {'RU':1.0}, scale:['#000000', '#ff0000'], min: 0.0}, {values: {'US':1.0}, scale:['#000000', '#ffff00'], min: 0.0}],
+    },
+  onRegionTipShow: function(e, el, code){
+    var text = '';
+    console.log(banTooltips[code], bannedCountries.indexOf(code), code, bannedCountries);
+    if(bannedCountries.indexOf(code)> -1){
+      text = banTooltips[code];
+    } else if(restrictedCountries.indexOf(code)>-1){
+      text = restrictionTooltips[code];
+    }
+    el.html(el.html()+'<br/>'+text.replace('\n', '<br/>'));
+  }});
+    });
+  </script>
+  <div id="container"></div>
+  <script>
+
+    var trips= {CN:-3};
+
+</script>
+</body>
+</html>
