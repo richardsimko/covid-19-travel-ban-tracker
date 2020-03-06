@@ -1,9 +1,4 @@
-var banTooltips = { 'RU': '- This does not apply to passengers who reside in Russian Fed.\n- This does not apply to airline crew.' };
-var restrictionTooltips = { US: 'restricted' };
-var bannedCountries = ['RU'];
-var restrictedCountries = ['US'];
-var trips = { CN: -3 };
-trips = {};
+var trips = {};
 var nationality = '';
 var countries = [];
 var countryMap = {};
@@ -28,6 +23,10 @@ function recalculateBans() {
       }
     }
     bans[country.id] = 0.0;
+    if (country.nationalRestrictions && country.nationalRestrictions.indexOf(nationality) > -1) {
+      restrictions[country.id] = 1.0;
+      return;
+    }
     if (country.restrictions) {
       for (const tripCountry in trips) {
         if (country.restrictions[tripCountry] <= trips[tripCountry]) {
@@ -38,6 +37,8 @@ function recalculateBans() {
     }
     restrictions[country.id] = 0.0;
   });
+  // North Korea is always banned
+  bans.KP = 1.0;
   map.series.regions[0].setValues(bans);
   map.series.regions[1].setValues(restrictions)
   map.clearSelectedRegions();
@@ -53,7 +54,11 @@ function addCountry() {
     recalculateBans();
   });
   $('.country-selection', clone).on('change', function (e) {
+    if ($(e.currentTarget).data('oldValue')) {
+      delete trips[$(e.currentTarget).data('oldValue')];
+    }
     trips[countries[e.currentTarget.selectedIndex].id] = parseInt($('.time-ago', clone).val()) * -1;
+    $(e.currentTarget).data('oldValue', countries[e.currentTarget.selectedIndex].id)
     recalculateBans();
   });
   $('.time-ago', clone).on('change', function (e) {
@@ -82,8 +87,8 @@ $.getJSON('/data.json', function (data) {
     map: 'world_mill',
     series: {
       regions: [
-        { values: {}, scale: ['#ffffff', '#ff0000'], min: 0.0, max: 1.0 },
-        { values: {}, scale: ['#ffffff', '#ffff00'], min: 0.0, max: 1.0 },
+        { values: {}, scale: ['#00ff00', '#ff0000'], min: 0.0, max: 1.0 },
+        { values: {}, scale: ['#00ff00', '#ffff00'], min: 0.0, max: 1.0 },
       ],
     },
     onRegionTipShow: function (e, el, code) {
